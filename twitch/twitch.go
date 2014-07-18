@@ -11,8 +11,7 @@ const (
 )
 
 type Twitch struct {
-    AppId string
-    Frequency int
+    ClientId string
 }
 
 type Preview struct {
@@ -67,7 +66,7 @@ type TwitchStreamResponse struct {
 }
 
 func (t *Twitch) GetStream(StreamName string) *TwitchStream {
-    resp, err := http.Get(ENDPOINT+"/streams/"+StreamName)
+    resp, err := http.Get(t.GetUrl("/streams/"+StreamName))
     if err != nil {
         panic(err)
     }
@@ -84,14 +83,18 @@ func (t *Twitch) GetStream(StreamName string) *TwitchStream {
     return &StreamResponse.Stream
 }
 
+func (t *Twitch) GetUrl(uri string) string {
+    var url string = ENDPOINT+uri
+    if t.ClientId != "" {
+        url = url+"?client_id="+t.ClientId
+    }
+    return url
+}
+
 func NewTwitch() *Twitch {
-    return &Twitch{AppId: DefaultAppId(), Frequency: DefaultFrequency()}
+    return &Twitch{ClientId: DefaultClientId()}
 }
 
-func DefaultAppId() string {
+func DefaultClientId() string {
     return ""
-}
-
-func DefaultFrequency() int {
-    return 60
 }

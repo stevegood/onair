@@ -15,6 +15,7 @@ var (
 type Config struct {
     Username string
     Frequency int
+    ClientId string `json:"client_id"`
     Pins []int
 }
 
@@ -44,8 +45,10 @@ func main() {
     log.Print("Hello On Air!\n")
     LoadConfig()
     _twitch = twitch.NewTwitch()
-    if config.Frequency > 0 {
-        _twitch.Frequency = config.Frequency
+
+    if config.ClientId == "" {
+        _twitch.ClientId = config.ClientId
     }
+
     GetStream(config.Username)
 }
