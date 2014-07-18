@@ -5,6 +5,7 @@ import(
     "log"
     "io/ioutil"
     "github.com/stevegood/onair/twitch"
+    "time"
 )
 
 var (
@@ -26,6 +27,13 @@ func GetStream(username string) {
     } else {
         log.Print(stream.Channel.DisplayName+" is ONLINE\n")
     }
+
+    defer GetStream(username)
+    if config.Frequency > 0 {
+        delay := time.Duration(config.Frequency) * time.Second
+        time.Sleep(delay)
+    }
+
 }
 
 func LoadConfig() {
