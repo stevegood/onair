@@ -4,13 +4,17 @@ import(
     "encoding/json"
     "log"
     "io/ioutil"
+    "github.com/davecheney/gpio"
     "github.com/stevegood/onair/twitch"
+    "os"
+    "os/signal"
     "time"
 )
 
 var (
     _twitch *twitch.Twitch
     config *Config
+    openPins []gpio.Pin
 )
 
 type Config struct {
@@ -47,6 +51,29 @@ func LoadConfig() {
             panic(err)
         }
     }
+
+    for i, pin := range config.Pins {
+        log.Printf("Initializing pin %d", pin)
+        gpin, err := gpio.OpenPin(pin, gpio.ModeOutput)
+        if err != nil {
+            log.Printf("Error opening pin %d. %s", pin, err)
+        } else {
+            openPins[i] = gpin
+        }
+    }
+
+    c := make(chan os.Signal, 1)
+    signal.Notify(c, os.Interrupt)
+    go func() {
+        for _ = range c {
+            log.Print("Clearing and unexporting the pins.\n")
+            for _, pin := range openPins {
+                pin.Clear()
+                pin.Close()
+                os.Exit(0)
+            }
+        }
+    }()
 }
 
 func main() {
