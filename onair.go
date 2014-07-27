@@ -4,17 +4,15 @@ import(
     "encoding/json"
     "log"
     "io/ioutil"
-    "github.com/davecheney/gpio"
+    "github.com/stevegood/onair/pi"
     "github.com/stevegood/onair/twitch"
-    "os"
-    "os/signal"
     "time"
 )
 
 var (
     _twitch *twitch.Twitch
     config *Config
-    openPins []gpio.Pin
+    pins []*pi.Pin
 )
 
 type Config struct {
@@ -28,8 +26,10 @@ func GetStream(username string) {
     stream :=  _twitch.GetStream(username)
     if stream.Channel.DisplayName == "" {
         log.Print(username+" is OFFLINE\n")
+        SetAllPinsTo("1")
     } else {
         log.Print(stream.Channel.DisplayName+" is ONLINE\n")
+        SetAllPinsTo("0")
     }
 
     defer GetStream(username)
@@ -40,40 +40,35 @@ func GetStream(username string) {
 
 }
 
+func SetAllPinsTo(Value string) {
+    for _, pin := range pins {
+        if Value == "0" {
+            pin.SetLow()
+        } else {
+            pin.SetHigh()
+        }
+    }
+}
+
 func LoadConfig() {
     file, err := ioutil.ReadFile("Config.json")
     if err != nil {
         log.Print("Unable to load Config.json, using defaults instead")
-        config = &Config{Username: "ThatArdothGuy", Frequency: 60, Pins: []int{17}}
+        config = &Config{Username: "ThatArdothGuy", Frequency: 60, Pins: []int{14,15,18,23}}
     } else {
         err = json.Unmarshal(file, &config)
         if err != nil {
             panic(err)
         }
     }
+}
 
-    for i, pin := range config.Pins {
+func InitPins() {
+    for _, pin := range config.Pins {
         log.Printf("Initializing pin %d", pin)
-        gpin, err := gpio.OpenPin(pin, gpio.ModeOutput)
-        if err != nil {
-            log.Printf("Error opening pin %d. %s", pin, err)
-        } else {
-            openPins[i] = gpin
-        }
+        p := pi.NewPin(pin, "out", 1)
+        pins = append(pins, p)
     }
-
-    c := make(chan os.Signal, 1)
-    signal.Notify(c, os.Interrupt)
-    go func() {
-        for _ = range c {
-            log.Print("Clearing and unexporting the pins.\n")
-            for _, pin := range openPins {
-                pin.Clear()
-                pin.Close()
-                os.Exit(0)
-            }
-        }
-    }()
 }
 
 func main() {
@@ -84,6 +79,6 @@ func main() {
     if config.ClientId == "" {
         _twitch.ClientId = config.ClientId
     }
-
+    InitPins()
     GetStream(config.Username)
 }
