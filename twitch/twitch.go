@@ -70,7 +70,7 @@ func (t *Twitch) GetStream(StreamName string) *TwitchStream {
     resp, err := http.Get(t.GetUrl("/streams/"+StreamName))
     if err != nil {
         log.Fatal(err)
-        return
+        return nil
     }
 
     // do stuff with the data, like unmarshal it into stream
@@ -80,7 +80,7 @@ func (t *Twitch) GetStream(StreamName string) *TwitchStream {
     err = json.Unmarshal(body, &StreamResponse)
     if err != nil {
         log.Fatal(err)
-        return
+        return nil
     }
 
     return &StreamResponse.Stream
