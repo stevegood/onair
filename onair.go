@@ -24,12 +24,18 @@ type Config struct {
 
 func GetStream(username string) {
     stream :=  _twitch.GetStream(username)
-    if stream.Channel.DisplayName == "" {
-        log.Print(username+" is OFFLINE\n")
+    
+    if stream == nil {
+        log.Print("There was an error while getting the stream data, turning the lamp off!")
         SetAllPinsTo("1")
     } else {
-        log.Print(stream.Channel.DisplayName+" is ONLINE\n")
-        SetAllPinsTo("0")
+        if stream.Channel.DisplayName == "" {
+            log.Print(username+" is OFFLINE\n")
+            SetAllPinsTo("1")
+        } else {
+            log.Print(stream.Channel.DisplayName+" is ONLINE\n")
+            SetAllPinsTo("0")
+        }
     }
 
     defer GetStream(username)

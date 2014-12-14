@@ -3,6 +3,7 @@ package twitch
 import (
     "encoding/json"
     "io/ioutil"
+    "log"
     "net/http"
 )
 
@@ -68,7 +69,8 @@ type TwitchStreamResponse struct {
 func (t *Twitch) GetStream(StreamName string) *TwitchStream {
     resp, err := http.Get(t.GetUrl("/streams/"+StreamName))
     if err != nil {
-        panic(err)
+        log.Fatal(err)
+        return
     }
 
     // do stuff with the data, like unmarshal it into stream
@@ -77,7 +79,8 @@ func (t *Twitch) GetStream(StreamName string) *TwitchStream {
     var StreamResponse TwitchStreamResponse
     err = json.Unmarshal(body, &StreamResponse)
     if err != nil {
-        panic(err)
+        log.Fatal(err)
+        return
     }
 
     return &StreamResponse.Stream
