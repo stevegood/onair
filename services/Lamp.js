@@ -11,19 +11,29 @@ function Lamp() {
   var online = false,
       pins;
 
-  function setPinsTo(value) {
+  function setPinsTo(value, callback) {
     if (gpio) {
-      for(var i=0; i < pins.length; i++) {
-        var pin = parseInt(pins[i].toString());
-        console.log(!isNaN(pin));
-        gpio.close(pin, function(){
-          gpio.open(pin, "output", function(err) {
-            gpio.write(pin, value || 1, function() {
-              gpio.close(pin);
+      var i = 0;
+
+      function setPins(pin) {
+        console.log("Setting pin " + pin + ' to ' + value);
+        gpio.open(pin, "output", function(err) {
+          gpio.write(pin, (value || 1), function() {
+            gpio.close(pin, function(){
+              i++;
+              if (i === pins.length) {
+                callback();
+              } else {
+                setPins(parseInt(pins[i].toString()));
+              }
             });
           });
         });
       }
+
+      setPins(parseInt(pins[i].toString()));
+    } else {
+      callback();
     }
   }
 
@@ -57,11 +67,11 @@ function Lamp() {
       console.log('Will manage pins ' + pins);
       console.log('Setting pins high to start');
 
-      setPinsTo(1);
-
-      if (streamName && _interval) {
-        monitor.watch(streamName, (_interval * 1000), onlineHandler, offlineHandler);
-      }
+      setPinsTo(1, function(){
+        if (streamName && _interval) {
+          monitor.watch(streamName, (_interval * 1000), onlineHandler, offlineHandler);
+        }
+      });
     }
   };
 }
