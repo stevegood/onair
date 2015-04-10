@@ -48,11 +48,9 @@ function Lamp() {
 
   function offlineHandler() {
     // turn the lamp off
-    if (online) {
-      online = false;
-      console.log('Turning the lamp OFF');
-      setPinsTo(1);
-    }
+    online = false;
+    console.log('Turning the lamp OFF');
+    setPinsTo(1);
   }
 
   return {
