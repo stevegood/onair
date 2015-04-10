@@ -14,10 +14,12 @@ function Lamp() {
   function setPinsTo(value) {
     if (gpio) {
       for(var i=0; i < pins.length; i++) {
-        gpio.close(pins[i], function(){
-          gpio.open(pins[i], "output", function(err) {
-            gpio.write(pins[i], value || 1, function() {
-              gpio.close(pins[i]);
+        var pin = parseInt(pins[i].toString());
+        console.log(!isNaN(pin));
+        gpio.close(pin, function(){
+          gpio.open(pin, "output", function(err) {
+            gpio.write(pin, value || 1, function() {
+              gpio.close(pin);
             });
           });
         });
