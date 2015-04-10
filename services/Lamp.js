@@ -22,7 +22,7 @@ function Lamp() {
             gpio.close(pin, function(){
               i++;
               if (i === pins.length) {
-                callback();
+                if (callback) callback();
               } else {
                 setPins(parseInt(pins[i].toString()));
               }
@@ -33,7 +33,7 @@ function Lamp() {
 
       setPins(parseInt(pins[i].toString()));
     } else {
-      callback();
+      if (callback) callback();
     }
   }
 
