@@ -18,7 +18,7 @@ function Lamp() {
       function setPins(pin) {
         console.log("Setting pin " + pin + ' to ' + value);
         gpio.open(pin, "output", function(err) {
-          gpio.write(pin, (value || 1), function() {
+          gpio.write(pin, value, function() {
             gpio.close(pin, function(){
               i++;
               if (i === pins.length) {
@@ -42,7 +42,7 @@ function Lamp() {
     if (!online) {
       online = true;
       console.log('Turning the lamp ON');
-      setPinsTo(0);
+      setPinsTo(1);
     }
   }
 
@@ -51,7 +51,7 @@ function Lamp() {
     if (online) {
       online = false;
       console.log('Turning the lamp OFF');
-      setPinsTo(1);
+      setPinsTo(0);
     }
   }
 
@@ -65,7 +65,6 @@ function Lamp() {
       console.log('Starting up the lamp!');
       console.log('Watching for status changes on ' + streamName + ' every ' + _interval + ' seconds');;
       console.log('Will manage pins ' + pins);
-      console.log('Setting pins high to start');
 
       if (streamName && _interval) {
         monitor.watch(streamName, (_interval * 1000), onlineHandler, offlineHandler);
