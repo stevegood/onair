@@ -67,11 +67,9 @@ function Lamp() {
       console.log('Will manage pins ' + pins);
       console.log('Setting pins high to start');
 
-      setPinsTo(1, function(){
-        if (streamName && _interval) {
-          monitor.watch(streamName, (_interval * 1000), onlineHandler, offlineHandler);
-        }
-      });
+      if (streamName && _interval) {
+        monitor.watch(streamName, (_interval * 1000), onlineHandler, offlineHandler);
+      }
     }
   };
 }
