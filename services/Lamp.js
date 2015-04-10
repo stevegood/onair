@@ -17,9 +17,9 @@ function Lamp() {
 
       function setPins(pin) {
         console.log("Setting pin " + pin + ' to ' + value);
-        gpio.open(pin, "output", function(err) {
-          gpio.write(pin, value, function() {
-            gpio.close(pin, function(){
+        gpio.close(pin, function(){
+          gpio.open(pin, "output", function(err) {
+            gpio.write(pin, value, function() {
               i++;
               if (i === pins.length) {
                 if (callback) callback();
@@ -42,7 +42,7 @@ function Lamp() {
     if (!online) {
       online = true;
       console.log('Turning the lamp ON');
-      setPinsTo(1);
+      setPinsTo(0);
     }
   }
 
@@ -51,7 +51,7 @@ function Lamp() {
     if (online) {
       online = false;
       console.log('Turning the lamp OFF');
-      setPinsTo(0);
+      setPinsTo(1);
     }
   }
 
